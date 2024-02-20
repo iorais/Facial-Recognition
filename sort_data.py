@@ -130,19 +130,19 @@ for label in labels:
     image_files = label_to_filenames[label]
     show_all(image_files)
 
-# label = labels[0]
-# image_files = label_to_filenames[label]
+label = labels[0]
+image_files = label_to_filenames[label]
 
-# filename: str
-# for filename in image_files:
-#     show_all(image_files)
-#     img = mpimg.imread(f'{train_path}/{filename}')
-#     imgplot = plt.imshow(img)
-#     date = filename.split('_')[0]
-#     plt.title(filename)
-#     plt.xlabel(label)
-#     plt.tick_params(left = False, right = False , labelleft = False , 
-#                 labelbottom = False, bottom = False)
-#     plt.show()
+filename: str
+for filename in image_files:
+    show_all(image_files)
+    img = mpimg.imread(f'{train_path}/{filename}')
+    imgplot = plt.imshow(img)
+    date = filename.split('_')[0]
+    plt.title(filename)
+    plt.xlabel(label)
+    plt.tick_params(left = False, right = False , labelleft = False , 
+                labelbottom = False, bottom = False)
+    plt.show()
 
-#     sort_data(filename)
+    sort_data(filename)
