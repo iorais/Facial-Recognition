@@ -56,8 +56,12 @@ for subdir in os.listdir(sorted_path):
         img = Image.open(file_path)
         img.save(f'{aug_subdir}/{filename}')
 
-    # saves tilted images into augmented_data subdirectory
+    # saves tilted images into augmented_data subdirectories
+    aug_subdir_tilt = os.path.join(aug_subdir, 'Tilt')
+    aug_image_tilt.process_folder(sorted_subdir, aug_subdir_tilt)
     aug_image_tilt.process_folder(sorted_subdir, aug_subdir)
 
     # saves colored images into augmented_data subdirectory
-    aug_image_color.process_folder(sorted_subdir, aug_subdir)
+    aug_subdir_colored = os.path.join(aug_subdir, 'Colored')
+    aug_image_color.process_folder(sorted_subdir, aug_subdir_colored)
+    aug_image_color.process_folder(aug_subdir_tilt, aug_subdir)

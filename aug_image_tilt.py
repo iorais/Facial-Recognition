@@ -53,10 +53,11 @@ def process_folder(folder_path, output_folder):
             tilted_back = tilt_back(image)
 
             # save tilted iamges
-            mpimg.imsave(fname=os.path.join(output_folder, f'{filename}_tilted_right.jpeg'), arr=tilted_right)
-            mpimg.imsave(fname=os.path.join(output_folder, f'{filename}_tilted_left.jpeg'), arr=tilted_left)
-            mpimg.imsave(fname=os.path.join(output_folder, f'{filename}_tilted_front.jpeg'), arr=tilted_front)
-            mpimg.imsave(fname=os.path.join(output_folder, f'{filename}_tilted_back.jpeg'), arr=tilted_back)
+            name, ext = filename.split('.')
+            mpimg.imsave(fname=os.path.join(output_folder, f'{name}_tilted_right.{ext}'), arr=tilted_right)
+            mpimg.imsave(fname=os.path.join(output_folder, f'{name}_tilted_left.{ext}'), arr=tilted_left)
+            mpimg.imsave(fname=os.path.join(output_folder, f'{name}_tilted_front.{ext}'), arr=tilted_front)
+            mpimg.imsave(fname=os.path.join(output_folder, f'{name}_tilted_back.{ext}'), arr=tilted_back)
 
 folder_path = 'trainingset0206'
 output_folder = 'tilted'
