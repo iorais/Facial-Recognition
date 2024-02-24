@@ -1,5 +1,6 @@
 import os
 import cv2
+
 from PIL import Image, ImageEnhance
 
 def adjust_image_properties_opencv(image_path, 

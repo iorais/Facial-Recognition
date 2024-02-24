@@ -1,5 +1,6 @@
 import os
 import cv2
+
 import numpy as np
 import matplotlib.image as mpimg
 
@@ -60,4 +61,4 @@ def process_folder(folder_path, output_folder):
 folder_path = 'trainingset0206'
 output_folder = 'tilted'
 
-process_folder(folder_path, output_folder)
+# process_folder(folder_path, output_folder)

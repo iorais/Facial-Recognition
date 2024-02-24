@@ -1,10 +1,11 @@
 import os
-import time
 import statistics
 import configparser
+
+import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
-import numpy as np
+
 from PIL import Image
 from collections import defaultdict
 
@@ -29,15 +30,14 @@ def get_paths():
 
     root_path = config['PATHS']['root']
     train_path = root_path + config['PATHS']['train']
-    grade_path = root_path + "/grade"
 
-    return train_path, grade_path
+    return root_path, train_path
 
 def is_image_file(filename: str) -> bool:
     extensions = ['.png', '.jpg', '.jpeg', '.PNG', '.JPG', '.JPEG']
     return any(filename.endswith(extension) for extension in extensions)
 
-def get_maps(mapping_filename='/file_mapping.txt', train_path=get_paths()[0]):
+def get_maps(mapping_filename='/file_mapping.txt', train_path=get_paths()[1]):
     # mapping from filename to label
     filename_to_label = {}
 
@@ -89,22 +89,25 @@ def pixel_standard(k=1, file=None):
     return standard
 
 
-def save_image(filename: str, auto=True):
+def save_image(filename: str, root_path=get_paths()[0], auto=True):
     '''
     sorts the data into directories
     '''
     # create parent directory if needed
-    os.makedirs('sorted_data', exist_ok=True)
+    parent = os.path.join(root_path, 'sorted_data')
+    os.makedirs(parent, exist_ok=True)
 
     # subdirectories
     folders = ['Clean', 'LR', 'Raw']
 
     for i, folder in enumerate(folders):
         # print options
-        print(f'[{i}]', folder)
+        if not auto:
+            print(f'[{i}]', folder)
 
         # create directory if needed
-        os.makedirs(f'sorted_data/{folder}', exist_ok=True)
+        dir = os.path.join(parent, folder)
+        os.makedirs(dir, exist_ok=True)
     
     if auto:
         idx = 0 if pixel_standard(file=filename) else 1
@@ -118,7 +121,6 @@ def save_image(filename: str, auto=True):
             else:
                 break
         
-
     print(f'saving {filename} in {folders[idx]} folder')
     print('...')
 
@@ -128,8 +130,8 @@ def save_image(filename: str, auto=True):
     date = filename.split('_')[0]
     new_filename = '_'.join([label, date + '.jpeg'])
 
-    img.save(f'sorted_data/{folders[idx]}/{new_filename}')
-    img.save(f'sorted_data/{folders[-1]}/{new_filename}')
+    img.save(f'{parent}/{folders[idx]}/{new_filename}')
+    img.save(f'{parent}/{folders[-1]}/{new_filename}')
 
 def show_all(image_files: list[str]):
     '''
@@ -160,7 +162,7 @@ def show_all(image_files: list[str]):
     plt.show()
 
 
-train_path = get_paths()[0]
+train_path = get_paths()
 
 # get maps
 filename_to_label, filename_to_img, label_to_filenames = get_maps()
@@ -168,30 +170,30 @@ filename_to_label, filename_to_img, label_to_filenames = get_maps()
 # list of labels
 labels = list(label_to_filenames.keys())
 
+# main file to run
 def sort_data():
     for label in label_to_filenames.keys():
         for filename in label_to_filenames[label]:
             save_image(filename)
 
-# # shows image to be sorted
-# for label in labels:
-#     image_files = label_to_filenames[label]
-#     show_all(image_files)
+def sort_data_manual():
+    # shows image to be sorted
+    for label in labels:
+        image_files = label_to_filenames[label]
+        show_all(image_files)
 
-# label = labels[0]
-# image_files = label_to_filenames[label]
+    # for sorting manually
+    for label in labels:
+        for image_files in label_to_filenames[label]:
+            filename: str
+            for filename in image_files:
+                show_all(image_files)
+                img = mpimg.imread(f'{train_path}/{filename}')
+                plt.imshow(img)
+                plt.title(filename)
+                plt.xlabel(label)
+                plt.tick_params(left = False, right = False , labelleft = False , 
+                            labelbottom = False, bottom = False)
+                plt.show()
 
-# # for sorting manually
-# filename: str
-# for filename in image_files:
-#     show_all(image_files)
-#     img = mpimg.imread(f'{train_path}/{filename}')
-#     imgplot = plt.imshow(img)
-#     date = filename.split('_')[0]
-#     plt.title(filename)
-#     plt.xlabel(label)
-#     plt.tick_params(left = False, right = False , labelleft = False , 
-#                 labelbottom = False, bottom = False)
-#     plt.show()
-
-#     # save_image(filename)
+                save_image(filename, auto=False)
