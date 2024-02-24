@@ -1,5 +1,6 @@
 import os
 import time
+import statistics
 import configparser
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
@@ -8,7 +9,7 @@ from PIL import Image
 from collections import defaultdict
 
 '''
-Run this file in an interactive window
+Run this file in an interactive window for manual sorting
 '''
  
 def get_paths():
@@ -59,36 +60,76 @@ def get_maps(mapping_filename='/file_mapping.txt', train_path=get_paths()[0]):
 
     return filename_to_label, filename_to_img, label_to_filenames
 
-def sort_data(filename):
+def pixel_standard(k=1, file=None):
+    '''e=
+    returns k standard deviations below the mean of the amount of pixels in the dataset
+    '''
+
+    image_files = []
+    # iterate through files
+    for label in label_to_filenames.keys():
+        for filename in label_to_filenames[label]:
+            image_files.append(filename)
+
+    px_vals = []
+    for filename in image_files:
+        img = filename_to_img[filename]
+        img_vec = np.asanyarray(img).flatten()
+        px_vals.append(len(img_vec))
+
+    standard = statistics.mean(px_vals) - k * statistics.stdev(px_vals)
+
+    if file != None:
+        img = filename_to_img[file]
+        img_vec = np.asanyarray(img)
+        px = len(img_vec.flatten())
+
+        return px >= standard
+
+    return standard
+
+
+def save_image(filename: str, auto=True):
+    '''
+    sorts the data into directories
+    '''
     # create parent directory if needed
-    if not os.path.isdir('sorted_data'):
-        os.makedirs('sorted_data')
+    os.makedirs('sorted_data', exist_ok=True)
 
     # subdirectories
-    folders = ['Good', 'LR', 'Tilted']
+    folders = ['Clean', 'LR', 'Raw']
 
     for i, folder in enumerate(folders):
         # print options
         print(f'[{i}]', folder)
 
         # create directory if needed
-        if not os.path.isdir(f'sorted_data/{folder}'):
-            os.makedirs(f'sorted_data/{folder}')
+        os.makedirs(f'sorted_data/{folder}', exist_ok=True)
     
-    # get user input
-    while True:
-        idx = int(input('Which folder should this image go into?'))
+    if auto:
+        idx = 0 if pixel_standard(file=filename) else 1
+    else:
+        # get user input
+        while True:
+            idx = int(input('Which folder should this image go into?'))
+            
+            if idx not in range(len(folders)):
+                print('index was out of range')
+            else:
+                break
         
-        if idx not in range(len(folders)):
-            print('index was out of range')
-        else:
-            break
 
     print(f'saving {filename} in {folders[idx]} folder')
     print('...')
 
     img = filename_to_img[filename]
-    img.save(f'sorted_data/{folders[idx]}/{filename}')
+
+    label = filename_to_label[filename]
+    date = filename.split('_')[0]
+    new_filename = '_'.join([label, date + '.jpeg'])
+
+    img.save(f'sorted_data/{folders[idx]}/{new_filename}')
+    img.save(f'sorted_data/{folders[-1]}/{new_filename}')
 
 def show_all(image_files: list[str]):
     '''
@@ -104,6 +145,8 @@ def show_all(image_files: list[str]):
     for idx, filename in enumerate(image_files):
         i = idx // 3
         j = idx % rows
+        
+        label = filename_to_label[filename]
         fig.suptitle(label)
         img = mpimg.imread(f'{train_path}/{filename}')
         axs[i][j].set_title(filename)
@@ -125,24 +168,30 @@ filename_to_label, filename_to_img, label_to_filenames = get_maps()
 # list of labels
 labels = list(label_to_filenames.keys())
 
-# shows image to be sorted
-for label in labels:
-    image_files = label_to_filenames[label]
-    show_all(image_files)
+def sort_data():
+    for label in label_to_filenames.keys():
+        for filename in label_to_filenames[label]:
+            save_image(filename)
 
-label = labels[0]
-image_files = label_to_filenames[label]
+# # shows image to be sorted
+# for label in labels:
+#     image_files = label_to_filenames[label]
+#     show_all(image_files)
 
-filename: str
-for filename in image_files:
-    show_all(image_files)
-    img = mpimg.imread(f'{train_path}/{filename}')
-    imgplot = plt.imshow(img)
-    date = filename.split('_')[0]
-    plt.title(filename)
-    plt.xlabel(label)
-    plt.tick_params(left = False, right = False , labelleft = False , 
-                labelbottom = False, bottom = False)
-    plt.show()
+# label = labels[0]
+# image_files = label_to_filenames[label]
 
-    sort_data(filename)
+# # for sorting manually
+# filename: str
+# for filename in image_files:
+#     show_all(image_files)
+#     img = mpimg.imread(f'{train_path}/{filename}')
+#     imgplot = plt.imshow(img)
+#     date = filename.split('_')[0]
+#     plt.title(filename)
+#     plt.xlabel(label)
+#     plt.tick_params(left = False, right = False , labelleft = False , 
+#                 labelbottom = False, bottom = False)
+#     plt.show()
+
+#     # save_image(filename)
