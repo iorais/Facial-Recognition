@@ -1,4 +1,7 @@
 augmented_data/
 sorted_data/
+torchvision_dataset/
+rejected/
+models/
 
 *.pyc
