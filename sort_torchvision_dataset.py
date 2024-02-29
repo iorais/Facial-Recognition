@@ -4,33 +4,22 @@ import configparser
 from autocrop import Cropper
 from PIL import Image
 
-import sort_data
-
 # sorts dataset for torchvision.dataset.ImageFolder
 # sorts data into torchvision_dataset
 # each subdirectory of torchvision_dataset represents a class
 
 config = configparser.ConfigParser()
 
-# path to 'config.ini' file in Google
-path = 'drive/Shareddrives/CSEN240_Group11/'
+# path to Git Repo from Google CoLab file
+path = 'drive/Shareddrives/CSEN240_Group11/Facial-Recognition'
 
-if not os.path.isdir(path):
-# for local machine
-    path = 'configure.ini'
-else:
-# for Google CoLab
-    path += 'configure.ini'
+root_path = path if os.path.isdir(path) else ''
 
-config.read(path)
-
-root_path = config['PATHS']['root']
-
-src = os.path.join(root_path, 'augmented_data/Raw')
-dst = os.path.join(root_path, 'torchvision_dataset')
+src = os.path.join(root_path, 'sorted_val_data/Raw')
+dst = os.path.join(root_path, 'validation')
 os.makedirs(dst, exist_ok=True)
 
-cropper = Cropper()
+cropper = Cropper(244, 244)
 
 for filename in os.listdir(src):
     if filename.lower().endswith(('.png', '.jpg', '.jpeg', '.bmp', '.gif')):
@@ -51,6 +40,9 @@ for filename in os.listdir(src):
             img = Image.fromarray(cropped_array)
             img.save(f'{subdir}/{filename}')
         else:
-            # saves saves rejected image in rej
+            rejsubdir = os.path.join(rej, label)
+            os.makedirs(rejsubdir, exist_ok=True)
+
+            # saves saves rejected image in rej/label/
             img = Image.open(f'{src}/{filename}')
-            img.save(f'{rej}/{filename}')
+            img.save(f'{rejsubdir}/{filename}')

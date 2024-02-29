@@ -1,6 +1,5 @@
 import os
 import statistics
-import configparser
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -13,31 +12,21 @@ from collections import defaultdict
 Run this file in an interactive window for manual sorting
 '''
  
-def get_paths():
-    config = configparser.ConfigParser()
+# path to Git Repo from Google CoLab file
+path = 'drive/Shareddrives/CSEN240_Group11/Facial-Recognition'
 
-    # path to 'config.ini' file
-    path = 'drive/Shareddrives/CSEN240_Group11/'
+root_path = path if os.path.isdir(path) else ''
+train_path = os.path.join(root_path, 'trainingset0206')
+val_path = os.path.join(root_path,'training_validation_set_0226')
 
-    if not os.path.isdir(path):
-    # for local machine
-        path = 'configure.ini'
-    else:
-    # for Google CoLab
-        path += 'configure.ini'
-
-    config.read(path)
-
-    root_path = config['PATHS']['root']
-    train_path = root_path + config['PATHS']['train']
-
-    return root_path, train_path
+src = val_path
+dst = os.path.join(root_path, 'sorted_val_data')
 
 def is_image_file(filename: str) -> bool:
     extensions = ['.png', '.jpg', '.jpeg', '.PNG', '.JPG', '.JPEG']
     return any(filename.endswith(extension) for extension in extensions)
 
-def get_maps(mapping_filename='/file_mapping.txt', train_path=get_paths()[1]):
+def get_maps():
     # mapping from filename to label
     filename_to_label = {}
 
@@ -47,12 +36,12 @@ def get_maps(mapping_filename='/file_mapping.txt', train_path=get_paths()[1]):
     # mapping from label to list of image files
     label_to_filenames = defaultdict(list)
 
-    with open(train_path + mapping_filename) as file_mapping:
+    with open(src + '/file_mapping.txt') as file_mapping:
         for line in file_mapping:
             filename, label = line.split()
             if is_image_file(filename):
                 filename_to_label[filename] = label
-                filename_to_img[filename] = Image.open(f'{train_path}/{filename}')
+                filename_to_img[filename] = Image.open(f'{src}/{filename}')
                 label_to_filenames[label].append(filename)
 
     for label in label_to_filenames.keys():
@@ -89,12 +78,12 @@ def pixel_standard(k=1, file=None):
     return standard
 
 
-def save_image(filename: str, root_path=get_paths()[0], auto=True):
+def save_image(filename: str, auto=True):
     '''
     sorts the data into directories
     '''
     # create parent directory if needed
-    parent = os.path.join(root_path, 'sorted_data')
+    parent = os.path.join(root_path, dst)
     os.makedirs(parent, exist_ok=True)
 
     # subdirectories
@@ -150,7 +139,7 @@ def show_all(image_files: list[str]):
         
         label = filename_to_label[filename]
         fig.suptitle(label)
-        img = mpimg.imread(f'{train_path}/{filename}')
+        img = mpimg.imread(f'{sort_path}/{filename}')
         axs[i][j].set_title(filename)
         axs[i][j].imshow(img)
         axs[i][j].tick_params(left = False, right = False , labelleft = False , 
@@ -160,9 +149,6 @@ def show_all(image_files: list[str]):
         img_vec = np.asarray(img).flatten()
         axs[i][j].set(ylabel=f'{img_vec.shape[0]//3000}K px')
     plt.show()
-
-
-train_path = get_paths()
 
 # get maps
 filename_to_label, filename_to_img, label_to_filenames = get_maps()
@@ -188,7 +174,7 @@ def sort_data_manual():
             filename: str
             for filename in image_files:
                 show_all(image_files)
-                img = mpimg.imread(f'{train_path}/{filename}')
+                img = mpimg.imread(f'{sort_path}/{filename}')
                 plt.imshow(img)
                 plt.title(filename)
                 plt.xlabel(label)
@@ -197,3 +183,5 @@ def sort_data_manual():
                 plt.show()
 
                 save_image(filename, auto=False)
+
+sort_data()

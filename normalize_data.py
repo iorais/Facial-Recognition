@@ -11,25 +11,15 @@ import torchvision.datasets as datasets
 from torchvision import transforms
 
 
-config = configparser.ConfigParser()
+# path to Git Repo from Google CoLab file
+path = 'drive/Shareddrives/CSEN240_Group11/Facial-Recognition'
 
-# path to 'config.ini' file in Google
-path = 'drive/Shareddrives/CSEN240_Group11/'
-
-if not os.path.isdir(path):
-# for local machine
-    path = 'configure.ini'
-else:
-# for Google CoLab
-    path += 'configure.ini'
-
-config.read(path)
-
-root_path = config['PATHS']['root']
-train_path = root_path + config['PATHS']['train']
+root_path = path if os.path.isdir(path) else ''
 
 # load dataset
-data_dir = os.path.join(root_path, 'torchvision_dataset')
+data_dir = os.path.join(root_path, 'training')
+val_dir = os.path.join(root_path)
+
 dataset = datasets.ImageFolder(data_dir, transform=lambda img: np.array(img).astype(float))
 
 def get_mean_std(loader):

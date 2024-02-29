@@ -1,36 +1,16 @@
 import os
-import configparser
 
 from PIL import Image
 
-import sort_data
 import aug_image_tilt
 import aug_image_color
 
-def get_paths():
-    config = configparser.ConfigParser()
+# path to Git Repo from Google CoLab file
+path = 'drive/Shareddrives/CSEN240_Group11/Facial-Recognition'
 
-    # path to 'config.ini' file in Google
-    path = 'drive/Shareddrives/CSEN240_Group11/'
-
-    if not os.path.isdir(path):
-    # for local machine
-        path = 'configure.ini'
-    else:
-    # for Google CoLab
-        path += 'configure.ini'
-
-    config.read(path)
-
-    root_path = config['PATHS']['root']
-    train_path = root_path + config['PATHS']['train']
-
-    return root_path, train_path
-
-root_path, train_path = get_paths()
-
-# sorting data
-sort_data.sort_data()
+root_path = path if os.path.isdir(path) else ''
+train_path = os.path.join(root_path, 'trainingset0206')
+val_path = os.path.join(root_path,'training_validation_set_0226')
 
 # create directory for augmented data
 aug_path = os.path.join(root_path, 'augmented_data')
