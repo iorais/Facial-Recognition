@@ -19,8 +19,11 @@ root_path = path if os.path.isdir(path) else ''
 train_path = os.path.join(root_path, 'trainingset0206')
 val_path = os.path.join(root_path,'training_validation_set_0226')
 
+train_dst = os.path.join(root_path, 'sorted_data')
+val_dst = os.path.join(root_path, 'sorted_val_data')
+
 src = val_path
-dst = os.path.join(root_path, 'sorted_val_data')
+dst = val_dst
 
 def is_image_file(filename: str) -> bool:
     extensions = ['.png', '.jpg', '.jpeg', '.PNG', '.JPG', '.JPEG']
@@ -139,7 +142,7 @@ def show_all(image_files: list[str]):
         
         label = filename_to_label[filename]
         fig.suptitle(label)
-        img = mpimg.imread(f'{sort_path}/{filename}')
+        img = mpimg.imread(f'{src}/{filename}')
         axs[i][j].set_title(filename)
         axs[i][j].imshow(img)
         axs[i][j].tick_params(left = False, right = False , labelleft = False , 
@@ -174,7 +177,7 @@ def sort_data_manual():
             filename: str
             for filename in image_files:
                 show_all(image_files)
-                img = mpimg.imread(f'{sort_path}/{filename}')
+                img = mpimg.imread(f'{src}/{filename}')
                 plt.imshow(img)
                 plt.title(filename)
                 plt.xlabel(label)

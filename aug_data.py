@@ -9,8 +9,6 @@ import aug_image_color
 path = 'drive/Shareddrives/CSEN240_Group11/Facial-Recognition'
 
 root_path = path if os.path.isdir(path) else ''
-train_path = os.path.join(root_path, 'trainingset0206')
-val_path = os.path.join(root_path,'training_validation_set_0226')
 
 # create directory for augmented data
 aug_path = os.path.join(root_path, 'augmented_data')

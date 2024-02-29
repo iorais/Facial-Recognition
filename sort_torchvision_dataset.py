@@ -1,5 +1,4 @@
 import os
-import configparser
 
 from autocrop import Cropper
 from PIL import Image
@@ -8,15 +7,19 @@ from PIL import Image
 # sorts data into torchvision_dataset
 # each subdirectory of torchvision_dataset represents a class
 
-config = configparser.ConfigParser()
-
 # path to Git Repo from Google CoLab file
 path = 'drive/Shareddrives/CSEN240_Group11/Facial-Recognition'
 
 root_path = path if os.path.isdir(path) else ''
 
-src = os.path.join(root_path, 'sorted_val_data/Raw')
-dst = os.path.join(root_path, 'validation')
+train_path = os.path.join(root_path, 'augmented_data/Raw')
+train_dst = os.path.join(root_path, 'training')
+
+val_path = os.path.join(root_path, 'sorted_val_data/Raw')
+val_dst = os.path.join(root_path, 'validation')
+
+src = val_path
+dst = val_dst
 os.makedirs(dst, exist_ok=True)
 
 cropper = Cropper(244, 244)
