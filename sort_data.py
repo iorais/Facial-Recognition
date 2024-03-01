@@ -1,4 +1,5 @@
 import os
+import argparse
 import statistics
 
 import numpy as np
@@ -8,11 +9,7 @@ import matplotlib.image as mpimg
 from PIL import Image
 from collections import defaultdict
 
-'''
-Run this file in an interactive window for manual sorting
-'''
- 
-# path to Git Repo from Google CoLab file
+# path to Git Repo from Google CoLab
 path = 'drive/Shareddrives/CSEN240_Group11/Facial-Recognition'
 
 root_path = path if os.path.isdir(path) else ''
@@ -22,38 +19,63 @@ val_path = os.path.join(root_path,'training_validation_set_0226')
 train_dst = os.path.join(root_path, 'sorted_data')
 val_dst = os.path.join(root_path, 'sorted_val_data')
 
-src = val_path
-dst = val_dst
+
+parser = argparse.ArgumentParser(description='Sort Raw Image Files')
+
+src_dst = parser.add_mutually_exclusive_group(required=True)
+src_dst.add_argument('--training_set', action='store_true',
+                    help='boolean, sort the training set')
+src_dst.add_argument('--validation_set', action='store_true', 
+                    help='boolean, sort the validation set')
+src_dst.add_argument('--src_dst', nargs=2, type=str,
+                     help='source and destination of data to be sorted separated by a space')
+
+parser.add_argument('--manual', action='store_true',
+                    help='manually sort the data, works best in interactive terminal')
+
+opt = parser.parse_args()
+
+src = ''
+dst = ''
+
+if opt.src_dst:
+    src, dst = opt.src_dst
+elif opt.training_set:
+    src = train_path
+    dst = train_dst 
+elif opt.validation_set:
+    src = val_path
+    dst = val_dst
 
 def is_image_file(filename: str) -> bool:
     extensions = ['.png', '.jpg', '.jpeg', '.PNG', '.JPG', '.JPEG']
     return any(filename.endswith(extension) for extension in extensions)
 
-def get_maps():
-    # mapping from filename to label
-    filename_to_label = {}
+# mapping from filename to label
+filename_to_label = {}
 
-    # mapping from filename to PIL Image object
-    filename_to_img = {}
+# mapping from filename to PIL Image object
+filename_to_img = {}
 
-    # mapping from label to list of image files
-    label_to_filenames = defaultdict(list)
+# mapping from label to list of image files
+label_to_filenames = defaultdict(list)
 
-    with open(src + '/file_mapping.txt') as file_mapping:
-        for line in file_mapping:
-            filename, label = line.split()
-            if is_image_file(filename):
-                filename_to_label[filename] = label
-                filename_to_img[filename] = Image.open(f'{src}/{filename}')
-                label_to_filenames[label].append(filename)
+with open(src + '/file_mapping.txt') as file_mapping:
+    for line in file_mapping:
+        filename, label = line.split()
+        if is_image_file(filename):
+            filename_to_label[filename] = label
+            filename_to_img[filename] = Image.open(f'{src}/{filename}')
+            label_to_filenames[label].append(filename)
 
-    for label in label_to_filenames.keys():
-        label_to_filenames[label].sort()
+for label in label_to_filenames.keys():
+    label_to_filenames[label].sort()
 
-    return filename_to_label, filename_to_img, label_to_filenames
+# list of labels
+labels = list(label_to_filenames.keys())
 
-def pixel_standard(k=1, file=None):
-    '''e=
+def pixel_standard(file=None):
+    '''
     returns k standard deviations below the mean of the amount of pixels in the dataset
     '''
 
@@ -69,7 +91,7 @@ def pixel_standard(k=1, file=None):
         img_vec = np.asanyarray(img).flatten()
         px_vals.append(len(img_vec))
 
-    standard = statistics.mean(px_vals) - k * statistics.stdev(px_vals)
+    standard = statistics.mean(px_vals) - statistics.stdev(px_vals)
 
     if file != None:
         img = filename_to_img[file]
@@ -153,18 +175,7 @@ def show_all(image_files: list[str]):
         axs[i][j].set(ylabel=f'{img_vec.shape[0]//3000}K px')
     plt.show()
 
-# get maps
-filename_to_label, filename_to_img, label_to_filenames = get_maps()
-
-# list of labels
-labels = list(label_to_filenames.keys())
-
-# main file to run
-def sort_data():
-    for label in label_to_filenames.keys():
-        for filename in label_to_filenames[label]:
-            save_image(filename)
-
+# main function if sorting manually
 def sort_data_manual():
     # shows image to be sorted
     for label in labels:
@@ -187,4 +198,13 @@ def sort_data_manual():
 
                 save_image(filename, auto=False)
 
-sort_data()
+# main function
+def sort_data():
+    for label in label_to_filenames.keys():
+        for filename in label_to_filenames[label]:
+            save_image(filename)
+
+if opt.manual:
+    sort_data_manual()
+else:
+    sort_data()

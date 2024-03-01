@@ -1,4 +1,5 @@
 import os
+import argparse
 
 from autocrop import Cropper
 from PIL import Image
@@ -7,7 +8,7 @@ from PIL import Image
 # sorts data into torchvision_dataset
 # each subdirectory of torchvision_dataset represents a class
 
-# path to Git Repo from Google CoLab file
+# path to Git Repo from Google CoLab
 path = 'drive/Shareddrives/CSEN240_Group11/Facial-Recognition'
 
 root_path = path if os.path.isdir(path) else ''
@@ -18,8 +19,30 @@ train_dst = os.path.join(root_path, 'training')
 val_path = os.path.join(root_path, 'sorted_val_data/Raw')
 val_dst = os.path.join(root_path, 'validation')
 
-src = val_path
-dst = val_dst
+parser = argparse.ArgumentParser(description='Sort Raw Image Files')
+
+src_dst = parser.add_mutually_exclusive_group(required=True)
+src_dst.add_argument('--training_set', action='store_true',
+                    help='boolean, sort the training set')
+src_dst.add_argument('--validation_set', action='store_true', 
+                    help='boolean, sort the validation set')
+src_dst.add_argument('--src_dst', nargs=2, type=str,
+                     help='source and destination of data to be sorted')
+
+opt = parser.parse_args()
+
+src = ''
+dst = ''
+
+if opt.src_dst:
+    src, dst = opt.src_dst
+elif opt.training_set:
+    src = train_path
+    dst = train_dst 
+elif opt.validation_set:
+    src = val_path
+    dst = val_dst
+
 os.makedirs(dst, exist_ok=True)
 
 cropper = Cropper(244, 244)
