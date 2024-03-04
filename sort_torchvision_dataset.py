@@ -19,6 +19,8 @@ train_dst = os.path.join(root_path, 'training')
 val_path = os.path.join(root_path, 'sorted_val_data/Raw')
 val_dst = os.path.join(root_path, 'validation')
 
+rej_path = os.path.join(root_path, 'rejected')
+
 parser = argparse.ArgumentParser(description='Sort Raw Image Files')
 
 src_dst = parser.add_mutually_exclusive_group(required=True)
@@ -33,17 +35,21 @@ opt = parser.parse_args()
 
 src = ''
 dst = ''
+rej = ''
 
 if opt.src_dst:
     src, dst = opt.src_dst
 elif opt.training_set:
     src = train_path
-    dst = train_dst 
+    dst = train_dst
 elif opt.validation_set:
     src = val_path
     dst = val_dst
 
+rej = os.path.join(rej_path, dst)
+
 os.makedirs(dst, exist_ok=True)
+os.makedirs(rej, exist_ok=True)
 
 cropper = Cropper(244, 244)
 
@@ -53,10 +59,6 @@ for filename in os.listdir(src):
         label = filename.split('_')[0]
         subdir = os.path.join(dst, label)
         os.makedirs(subdir, exist_ok=True)
-
-        # creates rejection directory
-        rej = os.path.join(root_path, 'rejected')
-        os.makedirs(rej, exist_ok=True)
 
         # crops image
         cropped_array = cropper.crop(f'{src}/{filename}')
