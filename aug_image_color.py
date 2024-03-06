@@ -64,10 +64,10 @@ def process_folder(folder_path, output_folder):
                                                            contrast_factor, 
                                                            hue_shift_value)
 
-            # grayscale images
-            adjust_image_properties_opencv(file_path, 
-                                           output_folder, 
-                                           0, 
-                                           brightness_range[1], 
-                                           contrast_range[0], 
-                                           hue_range[0])
+            # # grayscale images
+            # adjust_image_properties_opencv(file_path, 
+            #                                output_folder, 
+            #                                0, 
+            #                                brightness_range[1], 
+            #                                contrast_range[0], 
+            #                                hue_range[0])
