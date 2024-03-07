@@ -1,6 +1,5 @@
 augmented_data/
 sorted_data/
-torchvision_dataset/
 rejected/
 models/
 training/
@@ -8,3 +7,4 @@ sorted_val_data/
 validation/
 
 *.pyc
+.DS_Store
