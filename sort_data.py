@@ -200,7 +200,18 @@ def sort_data_manual():
 
 # main function
 def sort_data():
+    exclude_labels = ['wufangyuan']
+    exclude = defaultdict(lambda : False)
+    for label in exclude_labels:
+        exclude[label] = True
+
     for label in label_to_filenames.keys():
+        if exclude[label]:
+            print(f'excluding {label}')
+            continue
+        else:
+            print(f'sorting {label}')
+        
         for filename in label_to_filenames[label]:
             save_image(filename)
 
