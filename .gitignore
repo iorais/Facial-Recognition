@@ -5,6 +5,7 @@ models/
 training/
 sorted_val_data/
 validation/
+embedded_feature_data/
 
 *.pyc
 .DS_Store
