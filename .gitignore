@@ -12,6 +12,8 @@ validation/
 testing/
 
 embedded_feature_data/
+training_deepface*
+dimension_reduced_data_*
 
 *.pyc
 .DS_Store

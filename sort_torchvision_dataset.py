@@ -1,14 +1,8 @@
 import os
 import argparse
 
-import numpy as np
-from PIL import Image
-
-from tqdm import tqdm
-
-from deepface import DeepFace
 from autocrop import Cropper
-
+from PIL import Image
 
 # sorts dataset for torchvision.dataset.ImageFolder
 # sorts data into torchvision_dataset
@@ -59,31 +53,7 @@ os.makedirs(rej, exist_ok=True)
 
 cropper = Cropper(244, 244)
 
-def df_cropper(img_path):
-    backends = [
-    'opencv', 
-    'ssd', 
-    'dlib', 
-    'mtcnn', 
-    'retinaface', 
-    'mediapipe',
-    'yolov8',
-    'yunet',
-    'fastmtcnn',
-    ]
-
-    face_objs = DeepFace.extract_faces(
-        img_path=img_path, 
-        target_size = (224, 224), 
-        detector_backend = backends[4],
-        enforce_detection=False
-    )
-
-    image_array = np.array(face_objs[0]['face'] * 255).astype(np.uint8)
-
-    return image_array
-
-for filename in tqdm(os.listdir(src)):
+for filename in os.listdir(src):
     if filename.lower().endswith(('.png', '.jpg', '.jpeg', '.bmp', '.gif')):
         # creates subdirectory by labels
         label = filename.split('_')[0]
@@ -91,15 +61,12 @@ for filename in tqdm(os.listdir(src)):
         os.makedirs(subdir, exist_ok=True)
 
         # crops image
-        # cropped_array = cropper.crop(f'{src}/{filename}')
-        print(f'attempting to save {src}/{filename}')
-        cropped_array = df_cropper(f'{src}/{filename}')
+        cropped_array = cropper.crop(f'{src}/{filename}')
 
         if type(cropped_array) != type(None):
             # saves successfully cropped image in subdir
             img = Image.fromarray(cropped_array)
             img.save(f'{subdir}/{filename}')
-            print(f'saved to {subdir}/{filename}')
         else:
             rejsubdir = os.path.join(rej, label)
             os.makedirs(rejsubdir, exist_ok=True)
@@ -107,4 +74,3 @@ for filename in tqdm(os.listdir(src)):
             # saves saves rejected image in rej/label/
             img = Image.open(f'{src}/{filename}')
             img.save(f'{rejsubdir}/{filename}')
-            print(f'rejected to {rejsubdir}/{filename}')
