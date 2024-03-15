@@ -1,10 +1,16 @@
-augmented_data/
-sorted_data/
-rejected/
 models/
-training/
+
+sorted_data/
 sorted_val_data/
+sorted_test_data/
+
+augmented_data/
+rejected/
+
+training/
 validation/
+testing/
+
 embedded_feature_data/
 
 *.pyc
